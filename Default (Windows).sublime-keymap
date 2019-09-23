@@ -1,0 +1,6 @@
+[
+    {
+        "keys": ["tab"],
+        "command": "dynamic_tab"
+    }
+]
