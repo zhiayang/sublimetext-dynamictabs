@@ -48,7 +48,7 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 					prevLine = v.substr(v.line(v.text_point(v.rowcol(s.begin())[0] - 1, 0)))
 					ws = self.get_first_whitespace(prevLine)
 					if thisSel < ws and ws != -1:
-						mult = (ws / tabSize) if usingSpaces else ws
+						mult = (ws // tabSize) if usingSpaces else ws
 						if prevLine[-1] in ("{", ":", ","):
 							mult += 1
 

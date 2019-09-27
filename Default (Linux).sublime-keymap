@@ -1,6 +1,11 @@
 [
-    {
-        "keys": ["tab"],
-        "command": "dynamic_tab"
-    }
+	{
+		"keys": [ "tab" ],
+		"command": "dynamic_tab",
+		"context":
+		[
+			{ "key": "has_next_field", "operator": "equal", "operand": "true" },
+			{ "key": "has_prev_field", "operator": "equal", "operand": "true" }
+		]
+	}
 ]
