@@ -4,8 +4,8 @@
 		"command": "dynamic_tab",
 		"context":
 		[
-			{ "key": "has_next_field", "operator": "equal", "operand": "true" },
-			{ "key": "has_prev_field", "operator": "equal", "operand": "true" }
+			{ "key": "has_next_field", "operator": "not_equal", "operand": true },
+			{ "key": "has_prev_field", "operator": "not_equal", "operand": true }
 		]
 	}
 ]
