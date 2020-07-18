@@ -5,22 +5,28 @@ import math
 from functools import reduce
 
 class DynamicTabCommand(sublime_plugin.TextCommand):
-	def get_first_whitespace(self, line):
+	def get_first_non_whitespace(self, line):
 		for i in range(0, len(line)):
 			if line[i] != '\t' and line[i] != ' ':
 				return i
 		return -1
 
-	def get_first_whitespace_in_region(self, v, region):
+	def get_first_non_whitespace_in_region(self, v, region):
 		line = v.substr(v.line(region))
-		return self.get_first_whitespace(line)
+		return self.get_first_non_whitespace(line)
 
 	def run(self, edit):
 		v           = self.view
 		tabSize     = v.settings().get("tab_size")
 		usingSpaces = v.settings().get("translate_tabs_to_spaces")
 
+		# move this out: we only want to do extra indentation for the first
+		# cursor! if not we'll end up with cascading things when we tab once.
+		selIdx = 0
+		mult = 1
 		for s in v.sel():
+			selIdx += 1
+
 			wasEmpty = True
 			if not s.empty():
 				wasEmpty = False
@@ -28,7 +34,7 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 
 			thisSel  = v.rowcol(s.begin())[1]
 			thisLine = v.substr(v.line(s))
-			firstWS  = self.get_first_whitespace_in_region(v, s)
+			firstWS  = self.get_first_non_whitespace_in_region(v, s)
 
 			if firstWS != -1 and thisSel > firstWS:
 				# ok... we need to calculate the next tabstop.
@@ -43,14 +49,20 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 				v.insert(edit, s.begin(), (" " * (finalpos - cursor)))
 
 			else:
-				mult = 1
-				if wasEmpty and v.rowcol(s.begin())[0] > 0:
-					prevLine = v.substr(v.line(v.text_point(v.rowcol(s.begin())[0] - 1, 0)))
-					ws = self.get_first_whitespace(prevLine)
-					if thisSel < ws and ws != -1:
-						mult = (ws // tabSize) if usingSpaces else ws
-						if prevLine[-1] in ("{", ":", ","):
-							mult += 1
+				if selIdx == 1:
+					if wasEmpty and v.rowcol(s.begin())[0] > 0:
+						prevLine = ""
+						(tries, maxTries) = (0, 3)
+
+						while tries < maxTries and len(prevLine) == 0:
+							prevLine = v.substr(v.line(v.text_point(v.rowcol(s.begin())[0] - (tries + 1), 0)))
+							tries += 1
+
+						ws = self.get_first_non_whitespace(prevLine)
+						if thisSel < ws and ws != -1:
+							mult = (ws // tabSize) if usingSpaces else ws
+							if prevLine[-1] in ("{", ":", ","):
+								mult += 1
 
 				if usingSpaces:
 					v.insert(edit, s.begin(), " " * tabSize * mult)
