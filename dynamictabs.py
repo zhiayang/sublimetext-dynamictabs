@@ -15,6 +15,15 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 		line = v.substr(v.line(region))
 		return self.get_first_non_whitespace(line)
 
+	def count_tabs(self, line):
+		ret = 0
+		for i in range(0, len(line)):
+			if line[i] == '\t':
+				ret += 1
+			else:
+				break
+		return ret
+
 	def run(self, edit):
 		v           = self.view
 		tabSize     = v.settings().get("tab_size")
@@ -36,6 +45,9 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 			thisLine = v.substr(v.line(s))
 			firstWS  = self.get_first_non_whitespace_in_region(v, s)
 
+			print("firstWS = {}".format(firstWS))
+			print("thisSel = {}".format(thisSel))
+
 			if firstWS != -1 and thisSel > firstWS:
 				# ok... we need to calculate the next tabstop.
 				# copied from https://github.com/zhiayang/vscode-tabindentspacealign/blob/master/src/extension.ts#L102
@@ -45,7 +57,7 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 				for i in range(0, thisSel):
 					cursor += ((cursor % tabSize) if thisLine[i] == '\t' else 1)
 
-				finalpos = math.ceil((cursor+1) / tabSize) * tabSize;
+				finalpos = math.ceil((cursor + 1) / tabSize) * tabSize;
 				v.insert(edit, s.begin(), (" " * (finalpos - cursor)))
 
 			else:
@@ -60,7 +72,12 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 
 						ws = self.get_first_non_whitespace(prevLine)
 						if thisSel < ws and ws != -1:
-							mult = (ws // tabSize) if usingSpaces else ws
+							# we need to count the number of *TABS*
+							if not usingSpaces:
+								mult = self.count_tabs(prevLine)
+							else:
+								mult = (ws // tabSize)      # foo
+
 							if prevLine[-1] in ("{", ":", ","):
 								mult += 1
 
