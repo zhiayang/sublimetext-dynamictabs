@@ -45,9 +45,6 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 			thisLine = v.substr(v.line(s))
 			firstWS  = self.get_first_non_whitespace_in_region(v, s)
 
-			print("firstWS = {}".format(firstWS))
-			print("thisSel = {}".format(thisSel))
-
 			if firstWS != -1 and thisSel > firstWS:
 				# ok... we need to calculate the next tabstop.
 				# copied from https://github.com/zhiayang/vscode-tabindentspacealign/blob/master/src/extension.ts#L102
