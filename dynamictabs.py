@@ -58,6 +58,7 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 				v.insert(edit, s.begin(), (" " * (finalpos - cursor)))
 
 			else:
+				fallback = None
 				if selIdx == 1:
 					if wasEmpty and v.rowcol(s.begin())[0] > 0:
 						prevLine = ""
@@ -72,13 +73,18 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 							# we need to count the number of *TABS*
 							if not usingSpaces:
 								mult = self.count_tabs(prevLine)
+								if mult == 0:
+									# if this failed, then just fallback
+									fallback = ws
 							else:
 								mult = (ws // tabSize)      # foo
 
 							if prevLine[-1] in ("{", ":", ","):
 								mult += 1
 
-				if usingSpaces:
+				if fallback is not None:
+					v.insert(edit, s.begin(), " " * fallback)
+				elif usingSpaces:
 					v.insert(edit, s.begin(), " " * tabSize * mult)
 				else:
 					v.insert(edit, s.begin(), "\t" * mult)
