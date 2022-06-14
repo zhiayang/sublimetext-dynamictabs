@@ -73,11 +73,12 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 							# we need to count the number of *TABS*
 							if not usingSpaces:
 								mult = self.count_tabs(prevLine)
-								if mult == 0:
-									# if this failed, then just fallback
-									fallback = ws
 							else:
 								mult = (ws // tabSize)      # foo
+
+							if mult == 0:
+								# if this failed, then just fallback
+								fallback = ws
 
 							if prevLine[-1] in ("{", ":", ","):
 								mult += 1
