@@ -33,6 +33,7 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 		# cursor! if not we'll end up with cascading things when we tab once.
 		selIdx = 0
 		mult = 1
+		fallback = None
 		for s in v.sel():
 			selIdx += 1
 
@@ -58,7 +59,6 @@ class DynamicTabCommand(sublime_plugin.TextCommand):
 				v.insert(edit, s.begin(), (" " * (finalpos - cursor)))
 
 			else:
-				fallback = None
 				if selIdx == 1:
 					if wasEmpty and v.rowcol(s.begin())[0] > 0:
 						prevLine = ""
